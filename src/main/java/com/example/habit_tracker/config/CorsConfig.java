@@ -1,3 +1,4 @@
+
 package com.example.habit_tracker.config;
 
 import org.springframework.context.annotation.Bean;
@@ -14,10 +15,14 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")  // Sabhi domains allowed, chahe localhost ho ya render
+                        .allowedOrigins(
+                                "http://localhost:5173",
+                                "http://localhost:5178"
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
-  };
+        };
     }
 }
