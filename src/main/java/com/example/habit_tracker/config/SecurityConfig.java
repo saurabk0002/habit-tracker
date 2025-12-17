@@ -3,8 +3,10 @@ package com.example.habit_tracker.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -22,24 +24,35 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // JWT so CSRF not needed
+                // 🔥 VERY IMPORTANT
+                .cors(Customizer.withDefaults())
+
+                // JWT use kar rahe ho → CSRF OFF
                 .csrf(csrf -> csrf.disable())
 
-                // Stateless session
+                // Stateless session (JWT)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
+
+                        // 🔥 CORS preflight (THIS FIXES YOUR ERROR)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Auth APIs
+                        .requestMatchers("/auth/**").permitAll()
+
+                        // Swagger (agar hai)
                         .requestMatchers(
-                                "/auth/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll()
+
+                        // Baaki sab secure
+                        .anyRequest().authenticated()
                 )
 
                 // JWT filter
