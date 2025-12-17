@@ -17,7 +17,8 @@ public class CorsConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:5173",
-                                "http://localhost:5178"
+                                "http://localhost:5174",
+                                "https://habit-tracker-810.onrender.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

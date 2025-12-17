@@ -1,17 +1,18 @@
 package com.example.habit_tracker.config;
 
-import com.example.habit_tracker.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.habit_tracker.security.JwtAuthFilter;
+
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -21,15 +22,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // 🔴 JWT me CSRF off
+                // JWT so CSRF not needed
                 .csrf(csrf -> csrf.disable())
 
-                // 🔴 Session use nahi hoga
+                // Stateless session
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // 🔴 Authorization rules
+                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/**",
@@ -41,17 +42,9 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 )
 
-                // 🔥 JWT FILTER IMPORTANT LINE
+                // JWT filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    // 🔴 Needed for login
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config
-    ) throws Exception {
-        return config.getAuthenticationManager();
     }
 }
