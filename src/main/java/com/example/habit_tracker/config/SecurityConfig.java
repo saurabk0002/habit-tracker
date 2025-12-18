@@ -20,36 +20,29 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // ✅ VERY IMPORTANT (CORS)
-                .cors()
-                .and()
-
-                // ❌ CSRF disable (REST API ke liye)
+                // 🔥 IMPORTANT
                 .csrf(csrf -> csrf.disable())
 
-                // ❌ Session disable (JWT stateless)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // ✅ Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
+                        // ✅ PUBLIC APIs
                         .requestMatchers(
-                                "/auth/**",
+                                "/api/auth/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // Baaki sab secured
+                        // 🔒 Everything else protected
                         .anyRequest().authenticated()
                 )
 
-                // ✅ JWT filter
+                // JWT Filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
