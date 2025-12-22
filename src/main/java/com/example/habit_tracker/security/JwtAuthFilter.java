@@ -23,6 +23,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    // 🔥 MOST IMPORTANT PART — AUTH ENDPOINTS SKIP
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+
+        return path.startsWith("/api/auth/")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs");
+    }
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -30,27 +40,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
-
-        // 🔓 Skip JWT for auth endpoints
-        if (path.startsWith("/api/auth")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
         String jwt = null;
-        String userEmail = null;
+        String username = null;
 
+        // ✅ Extract JWT only if present
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
-            userEmail = jwtUtils.extractUsername(jwt);
+            username = jwtUtils.extractUsername(jwt);
         }
 
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // ✅ Authenticate user if token valid
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(userEmail);
+                    userDetailsService.loadUserByUsername(username);
 
             if (jwtUtils.validateToken(jwt, userDetails)) {
 

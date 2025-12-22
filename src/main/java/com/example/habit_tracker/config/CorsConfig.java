@@ -16,29 +16,32 @@ public class CorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ FRONTEND ORIGINS (LOCAL + RENDER)
-        config.setAllowedOriginPatterns(List.of(
+        // ✅ FRONTEND ORIGINS ONLY (yahin aata hai frontend URL)
+        config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174",
                 "http://127.0.0.1:5173",
-                "http://127.0.0.1:5174",
-                "https://habit-tracker-i80.onrender.com"
+                "http://127.0.0.1:5174"
         ));
 
+        // ✅ METHODS
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
+        // ✅ HEADERS
         config.setAllowedHeaders(List.of("*"));
+
+        // ✅ JWT HEADER FRONTEND KO DIKHANE KE LIYE
         config.setExposedHeaders(List.of("Authorization"));
 
-        // ✅ JWT ke liye required
+        // ✅ REQUIRED FOR JWT + AXIOS
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
 
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }
